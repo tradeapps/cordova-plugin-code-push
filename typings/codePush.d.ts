@@ -83,7 +83,17 @@ declare namespace AdvancedHttp {
         /**
          * downloadFile wraps @method sendRequest to provide an easy interface for working with files
          */
-        downloadFile(url: string, body: object, headers: object, filePath: string, onSuccess: FileSaverCompletionHandler, onFailure: FileSaverErrorHandler): void;
+        downloadFile(url: string, body: object, headers: object, filePath: string, onProgress: SuccessCallback<{ isProgress: boolean, transferred: number, total: number }>, onSuccess: FileSaverCompletionHandler, onFailure: FileSaverErrorHandler): void;
+
+        /**
+         * downloadFileWithOptions wraps @method sendRequest to provide an easy interface for working with files
+         */
+        downloadFileWithOptions(url: string, options: {
+            params: object,
+            headers: object,
+            filePath: string,
+            onProgress: SuccessCallback<{ isProgress: boolean, transferred: number, total: number }>
+        }, onSuccess: FileSaverCompletionHandler, onFailure: FileSaverErrorHandler): void;
     }
 
 }

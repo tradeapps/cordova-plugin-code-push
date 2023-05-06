@@ -45,8 +45,8 @@ class RemotePackage extends Package implements IRemotePackage {
     /**
      * Downloads the package update from the CodePush service.
      *
-     * @param downloadSuccess Called with one parameter, the downloaded package information, once the download completed successfully.
-     * @param downloadError Optional callback invoked in case of an error.
+     * @param successCallback Called with one parameter, the downloaded package information, once the download completed successfully.
+     * @param errorCallback Optional callback invoked in case of an error.
      * @param downloadProgress Optional callback invoked during the download process. It is called several times with one DownloadProgress parameter.
      */
     public download(successCallback: SuccessCallback<LocalPackage>, errorCallback?: ErrorCallback, downloadProgress?: SuccessCallback<DownloadProgress>): void {
@@ -56,6 +56,15 @@ class RemotePackage extends Package implements IRemotePackage {
                 CodePushUtil.invokeErrorCallback(new Error("The remote package does not contain a download URL."), errorCallback);
             } else {
                 this.isDownloading = true;
+
+                const onDownloadProgress = (progressData: { isProgress: boolean, transferred: number, total: number }) => {
+                    if (downloadProgress) {
+                        downloadProgress({
+                            totalBytes: progressData.total,
+                            receivedBytes: progressData.transferred
+                        });
+                    }
+                };
 
                 const onFileError: FileSaverErrorHandler = (fileError: FileError, stage: string) => {
                     const error = new Error("Could not access local package. Stage:" + stage + "Error code: " + fileError.code);
@@ -91,7 +100,12 @@ class RemotePackage extends Package implements IRemotePackage {
                 const filedir = cordova.file.dataDirectory + LocalPackage.DownloadDir + "/";
                 const filename = LocalPackage.PackageUpdateFileName;
 
-                cordova.plugin.http.downloadFile(this.downloadUrl, {}, {}, filedir + filename, onFileReady, onFileError);
+                cordova.plugin.http.downloadFileWithOptions(this.downloadUrl, {
+                    params: {},
+                    headers: {},
+                    filePath: filedir + filename,
+                    onProgress: onDownloadProgress,
+                }, onFileReady, onFileError);
             }
         } catch (e) {
             CodePushUtil.invokeErrorCallback(new Error("An error occurred while downloading the package. " + (e && e.message) ? e.message : ""), errorCallback);

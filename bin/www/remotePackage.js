@@ -48,6 +48,14 @@ var RemotePackage = (function (_super) {
             }
             else {
                 this.isDownloading = true;
+                var onDownloadProgress = function (progressData) {
+                    if (downloadProgress) {
+                        downloadProgress({
+                            totalBytes: progressData.total,
+                            receivedBytes: progressData.transferred
+                        });
+                    }
+                };
                 var onFileError_1 = function (fileError, stage) {
                     var error = new Error("Could not access local package. Stage:" + stage + "Error code: " + fileError.code);
                     CodePushUtil.invokeErrorCallback(error, errorCallback);
@@ -76,7 +84,12 @@ var RemotePackage = (function (_super) {
                 };
                 var filedir = cordova.file.dataDirectory + LocalPackage.DownloadDir + "/";
                 var filename = LocalPackage.PackageUpdateFileName;
-                cordova.plugin.http.downloadFile(this.downloadUrl, {}, {}, filedir + filename, onFileReady, onFileError_1);
+                cordova.plugin.http.downloadFileWithOptions(this.downloadUrl, {
+                    params: {},
+                    headers: {},
+                    filePath: filedir + filename,
+                    onProgress: onDownloadProgress,
+                }, onFileReady, onFileError_1);
             }
         }
         catch (e) {
