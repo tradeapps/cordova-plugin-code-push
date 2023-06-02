@@ -69,6 +69,11 @@ declare namespace AdvancedHttp {
         filePath?: string | string[];
         name?: string | string[];
         responseType?: 'text' | 'arraybuffer' | 'blob' | 'json';
+        onProgress?: (response: {
+            isProgress: boolean;
+            transferred: number;
+            total: number;
+        }) => void;
     }
 
     export class Plugin {
@@ -80,20 +85,13 @@ declare namespace AdvancedHttp {
          * sendRequest handles the lifetime of an HTTP call
          */
         sendRequest(url: string, options: Options, onSuccess: (r: Response) => void, onError: (r: Response) => void): void;
+        sendRequest(url: string, options: Options, onSuccess: FileSaverCompletionHandler, onError: FileSaverErrorHandler): void;
+
         /**
          * downloadFile wraps @method sendRequest to provide an easy interface for working with files
          */
-        downloadFile(url: string, body: object, headers: object, filePath: string, onProgress: SuccessCallback<{ isProgress: boolean, transferred: number, total: number }>, onSuccess: FileSaverCompletionHandler, onFailure: FileSaverErrorHandler): void;
+        downloadFile(url: string, body: object, headers: object, filePath: string, onSuccess: FileSaverCompletionHandler, onFailure: FileSaverErrorHandler): void;
 
-        /**
-         * downloadFileWithOptions wraps @method sendRequest to provide an easy interface for working with files
-         */
-        downloadFileWithOptions(url: string, options: {
-            params: object,
-            headers: object,
-            filePath: string,
-            onProgress: SuccessCallback<{ isProgress: boolean, transferred: number, total: number }>
-        }, onSuccess: FileSaverCompletionHandler, onFailure: FileSaverErrorHandler): void;
     }
 
 }

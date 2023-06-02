@@ -100,7 +100,8 @@ class RemotePackage extends Package implements IRemotePackage {
                 const filedir = cordova.file.dataDirectory + LocalPackage.DownloadDir + "/";
                 const filename = LocalPackage.PackageUpdateFileName;
 
-                cordova.plugin.http.downloadFileWithOptions(this.downloadUrl, {
+                cordova.plugin.http.sendRequest(this.downloadUrl, {
+                    method: "download",
                     params: {},
                     headers: {},
                     filePath: filedir + filename,

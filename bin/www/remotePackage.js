@@ -84,7 +84,8 @@ var RemotePackage = (function (_super) {
                 };
                 var filedir = cordova.file.dataDirectory + LocalPackage.DownloadDir + "/";
                 var filename = LocalPackage.PackageUpdateFileName;
-                cordova.plugin.http.downloadFileWithOptions(this.downloadUrl, {
+                cordova.plugin.http.sendRequest(this.downloadUrl, {
+                    method: "download",
                     params: {},
                     headers: {},
                     filePath: filedir + filename,
