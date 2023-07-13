@@ -3,6 +3,7 @@ package com.microsoft.cordova;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.util.Base64;
+import android.util.Log;
 
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
@@ -41,6 +42,8 @@ public class CodePush extends CordovaPlugin {
     private static final String DEPLOYMENT_KEY_PREFERENCE = "codepushdeploymentkey";
     private static final String PUBLIC_KEY_PREFERENCE = "codepushpublickey";
     private static final String SERVER_URL_PREFERENCE = "codepushserverurl";
+    private static final String WWW_ASSET_PATH_PREFIX = "file:///android_asset/www/";
+
     private static final String NEW_LINE = System.getProperty("line.separator");
     private static boolean ShouldClearHistoryOnLoad = false;
     private CordovaWebView mainWebView;
@@ -546,11 +549,12 @@ public class CodePush extends CordovaPlugin {
     private File getStartPageForPackage(String packageLocation) {
         if (packageLocation != null) {
             File startPage = new File(this.cordova.getActivity().getFilesDir() + packageLocation, "www/" + getConfigStartPageName());
+            Log.w("File", "start page: " + startPage);
             if (startPage.exists()) {
+                Log.w("File", "Start page doesn't exist: " + startPage);
                 return startPage;
             }
         }
-
         return null;
     }
 
@@ -567,8 +571,8 @@ public class CodePush extends CordovaPlugin {
     private String getConfigStartPageName() {
         String launchUrl = this.getConfigLaunchUrl();
         int launchUrlLength = launchUrl.length();
-        if (launchUrl.startsWith(wwwAssetPathPrefix)) {
-            launchUrl = launchUrl.substring(wwwAssetPathPrefix.length(), launchUrlLength);
+        if (launchUrl.startsWith(CodePush.WWW_ASSET_PATH_PREFIX)) {
+            launchUrl = launchUrl.substring(CodePush.WWW_ASSET_PATH_PREFIX.length(), launchUrlLength);
         }
 
         return launchUrl;
